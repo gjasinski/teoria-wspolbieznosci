@@ -11,8 +11,14 @@ public class Consumer implements Runnable {
    public void run() {
 
         for(int i = 0;  i < this.max;   i++) {
-            String message = buffer.take();
-            System.out.println(message);
+            String message;
+			try {
+				message = buffer.take();
+				System.out.println(message);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
 
     }

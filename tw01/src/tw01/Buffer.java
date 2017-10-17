@@ -1,37 +1,32 @@
 package tw01;
 
+import tw02.BinarySemaphore;
+
 public class Buffer {
 	String buf;
 	
+	private BinarySemaphore semaphoreProduce;// = new BinarySemaphore();
+	private BinarySemaphore semaphoreConsume;
 	boolean emptyBuffer = true;
 	
-	public synchronized void put(String message){
-		while(!emptyBuffer){
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+	Buffer() throws InterruptedException{
+		semaphoreProduce = new BinarySemaphore();
+		semaphoreConsume = new BinarySemaphore();
+		semaphoreProduce.giveSemaphore();
+		semaphoreConsume.takeSemaphore();
+	}
+	public void put(String message) throws InterruptedException{
+		semaphoreProduce.takeSemaphore();
 		this.buf = message;
-		emptyBuffer = false;
-		notify();
+		semaphoreConsume.giveSemaphore();
 	}
 	
-	public synchronized String take(){
-		while(emptyBuffer){
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+	public String take() throws InterruptedException{
+		semaphoreConsume.takeSemaphore();
+		System.out.println("take");
 		String result = this.buf;
 		this.buf = null;
-		emptyBuffer = true;
-		notify();
+		semaphoreProduce.giveSemaphore();
 		return result;
 	}
 
