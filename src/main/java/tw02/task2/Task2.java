@@ -6,7 +6,7 @@ class Task2 {
 
     public static void main(String[] args) {
         HypermarketSimulator hypermarketSimulator = new HypermarketSimulator(HYPERMARKET_NUMBER_OF_TROLLEYS);
-        for(int i = 0; i < NUMBER_OF_CUSTOMERS; i++){
+        for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
             Customer customer = new Customer(i, hypermarketSimulator);
             Thread thread = new Thread(customer);
             thread.start();

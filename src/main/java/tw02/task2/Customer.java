@@ -1,10 +1,10 @@
 package tw02.task2;
 
-class Customer implements Runnable{
+class Customer implements Runnable {
     private final int id;
     private final HypermarketSimulator hypermarketSimulator;
 
-    Customer(int id, HypermarketSimulator hypermarketSimulator){
+    Customer(int id, HypermarketSimulator hypermarketSimulator) {
         this.id = id;
         this.hypermarketSimulator = hypermarketSimulator;
     }
@@ -15,7 +15,7 @@ class Customer implements Runnable{
     }
 
 
-    private void giveBackTrolley() throws InterruptedException{
+    private void giveBackTrolley() throws InterruptedException {
         int trolleys = this.hypermarketSimulator.giveBackTrolley();
         System.out.println(this.toString() + "give back trolley, trolleys left:" + trolleys);
     }
