@@ -1,20 +1,16 @@
 package tw04.task2;
 
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Arrays;
 
 public class TimeMeasurementRepository {
-    String name;
-    BigDecimal[] resultsPut;
-    BigDecimal[] resultsGet;
-    int[] numberOfResultsPut;
-    int[] numberOfResultsGet;
+    private final String name;
+    private final BigDecimal[] resultsPut;
+    private final BigDecimal[] resultsGet;
+    private final int[] numberOfResultsPut;
+    private final int[] numberOfResultsGet;
 
-    public TimeMeasurementRepository(int capacity) {
+    public TimeMeasurementRepository(int capacity, String name) {
         this.resultsPut = new BigDecimal[capacity];
         this.resultsGet = new BigDecimal[capacity];
         this.numberOfResultsPut = new int[capacity];
@@ -23,40 +19,48 @@ public class TimeMeasurementRepository {
             this.resultsPut[i] = new BigDecimal(0);
             this.resultsGet[i] = new BigDecimal(0);
         }
+        this.name = name;
     }
 
-    public void addMeasurementPut(int size, BigDecimal measurement) {
+    public synchronized void addMeasurementPut(int size, BigDecimal measurement) {
         this.resultsPut[size] = this.resultsPut[size].add(measurement);
         this.numberOfResultsPut[size]++;
         if (this.resultsPut[size].compareTo(measurement) < 0) throw new IllegalStateException("Overflow");
     }
 
-    public void addMeasurementGet(int size, BigDecimal measurement) {
+    public synchronized void addMeasurementGet(int size, BigDecimal measurement) {
         this.resultsGet[size] = this.resultsGet[size].add(measurement);
         this.numberOfResultsGet[size]++;
         if (this.resultsGet[size].compareTo(measurement) < 0) throw new IllegalStateException("Overflow");
     }
 
-    public void printResults(){
+    public synchronized void printResults(){
         try {
-            PrintWriter writer = new PrintWriter("the-file-name.txt", "UTF-8");
-            writer.println("put");
+            PrintWriter writer = new PrintWriter(String.format("put%s.txt", this.name), "UTF-8");
             for (int i = 0; i < resultsPut.length; i++) {
-                if (numberOfResultsGet[i] != 0) {
+                if (numberOfResultsPut[i] != 0) {
                     BigDecimal divisor = new BigDecimal(numberOfResultsPut[i]);
                     writer.println(resultsPut[i].divideToIntegralValue(divisor));
                 }
+                else {
+                    writer.println(0);
+                }
             }
-
-            writer.println("get");
-            for (int i = 0; i < resultsPut.length; i++) {
+            writer.close();
+            writer = new PrintWriter(String.format("get%s.txt", this.name), "UTF-8");
+            for (int i = 0; i < resultsGet.length; i++) {
                 if (numberOfResultsGet[i] != 0) {
                     BigDecimal divisor = new BigDecimal(numberOfResultsGet[i]);
                     writer.println(resultsGet[i].divideToIntegralValue(divisor));
                 }
+                else {
+                    writer.println(0);
+                }
             }
             writer.close();
             System.out.println("Wypisalem wyniki");
-        }catch (Exception ex){}
+        }catch (Exception ex){
+            System.out.println(ex);
+        }
     }
 }

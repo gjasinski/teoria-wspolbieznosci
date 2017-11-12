@@ -1,4 +1,4 @@
-package tw04.task2.naive;
+package tw04.task2.fair;
 
 import tw04.task2.TimeMeasurementRepository;
 
