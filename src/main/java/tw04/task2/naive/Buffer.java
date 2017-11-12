@@ -1,10 +1,12 @@
 package tw04.task2.naive;
 
+import tw04.task2.IBuffer;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-class Buffer {
+class Buffer implements IBuffer{
     private final Lock lock = new ReentrantLock();
     private final Condition waitForBuffer = lock.newCondition();
     private String buffer = "";
@@ -16,7 +18,8 @@ class Buffer {
         this.filledSize = 0;
     }
 
-    void put(String dataToPut) throws InterruptedException {
+    @Override
+    public void put(String dataToPut) throws InterruptedException {
         int sizeToPut = dataToPut.length();
         lock.lock();
         while (sizeToPut > emptySize) {
@@ -29,7 +32,8 @@ class Buffer {
         lock.unlock();
     }
 
-    String get(int sizeToGet) throws InterruptedException {
+    @Override
+    public String get(int sizeToGet) throws InterruptedException {
         lock.lock();
         while (sizeToGet > filledSize) {
             waitForBuffer.await();

@@ -1,5 +1,6 @@
 package tw04.task2.naive;
 
+import tw04.task2.IBuffer;
 import tw04.task2.TimeMeasurementRepository;
 
 import java.math.BigDecimal;
@@ -7,12 +8,12 @@ import java.util.Random;
 
 public class Producer implements Runnable {
     private Random generator = new Random();
-    private final Buffer buffer;
+    private final IBuffer buffer;
     private final int maxLengthOfProducedString;
     private final TimeMeasurementRepository timeMeasurementRepository;
     private final int REPEATE_PRODUCING = 100;
 
-    public Producer(Buffer buffer, int maxLengthOfProducedString, TimeMeasurementRepository timeMeasurementRepository) {
+    public Producer(IBuffer buffer, int maxLengthOfProducedString, TimeMeasurementRepository timeMeasurementRepository) {
         this.buffer = buffer;
         this.maxLengthOfProducedString = maxLengthOfProducedString;
         this.timeMeasurementRepository = timeMeasurementRepository;
@@ -29,7 +30,7 @@ public class Producer implements Runnable {
                 buffer.put(product);
                 long timestamp2 = System.nanoTime();
                 this.timeMeasurementRepository.addMeasurementPut(productSize, BigDecimal.valueOf(timestamp2 - timestamp1));
-               // System.out.println("Producer: size = " + productSize + " produced = " + product + " time " + System.currentTimeMillis());
+                System.out.println("Producer: size = " + productSize + " produced = " + product + " time " + System.currentTimeMillis());
             }
             this.timeMeasurementRepository.printResults();
         } catch (InterruptedException e) {

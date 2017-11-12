@@ -1,38 +1,31 @@
 package tw04.task2.fair;
 
+import tw04.task2.IBuffer;
+
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-class Buffer {
-    private final Lock lock = new ReentrantLock();
-    private final Condition waitForBuffer = lock.newCondition();
+public class Buffer implements IBuffer {
+    private final Semaphore semaphorePut = new Semaphore(1, true);
+    private final Semaphore semaphoreGet = new Semaphore(1, true);
+    private final Lock bufferLock = new ReentrantLock();
+    private final Condition waitForBuffer = bufferLock.newCondition();
     private String buffer = "";
     private int emptySize;
     private int filledSize;
-    private final int[] waitingRoomPut;
-    private final int[] waitingRoomGet;
-    private int numberOfProducers;
-    private int numberOfConsumers;
-    private int currNumberOfProducers = 0;
-    private int currNumberOfConsumers = 0;
-    private boolean producentsCanPut;
 
-    Buffer(int bufferSize, int numberOfConsumers, int numberOfProducers) {
+
+    Buffer(int bufferSize) {
         this.emptySize = bufferSize;
         this.filledSize = 0;
-        this.waitingRoomPut = new int[bufferSize/2];
-        this.waitingRoomGet = new int[bufferSize/2];
-        for(int i = 0; i < bufferSize/2; i++){
-            this.waitingRoomGet[i] = this.waitingRoomPut[i] = -1;
-        }
-        this.numberOfConsumers = numberOfConsumers;
-        this.numberOfProducers = numberOfProducers;
     }
 
-    boolean put(String dataToPut, int id) throws InterruptedException {
+    public void put(String dataToPut) throws InterruptedException {
+        semaphorePut.acquire();
         int sizeToPut = dataToPut.length();
-        lock.lock();
+        bufferLock.lock();
         while (sizeToPut > emptySize) {
             waitForBuffer.await();
         }
@@ -40,11 +33,13 @@ class Buffer {
         emptySize -= dataToPut.length();
         filledSize += dataToPut.length();
         waitForBuffer.signalAll();
-        lock.unlock();
+        bufferLock.unlock();
+        semaphorePut.release();
     }
 
-    String get(int sizeToGet, int id) throws InterruptedException {
-        lock.lock();
+    public String get(int sizeToGet) throws InterruptedException {
+        semaphoreGet.acquire();
+        bufferLock.lock();
         while (sizeToGet > filledSize) {
             waitForBuffer.await();
         }
@@ -53,15 +48,9 @@ class Buffer {
         filledSize -= sizeToGet;
         emptySize += sizeToGet;
         waitForBuffer.signalAll();
-        lock.unlock();
+        bufferLock.unlock();
+        semaphoreGet.release();
         return result;
     }
 
-    synchronized void decrementNumberOfProducents(){
-        this.numberOfProducers--;
-    }
-
-    synchronized void decrementNumberOfConsumers(){
-        this.numberOfConsumers--;
-    }
 }
