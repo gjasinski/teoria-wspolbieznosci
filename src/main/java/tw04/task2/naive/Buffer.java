@@ -5,16 +5,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 class Buffer {
-    private final int bufferSize;
     private final Lock lock = new ReentrantLock();
-    private final Condition waitForEmptyBuffer = lock.newCondition();
-    private final Condition waitForFullBuffer = lock.newCondition();
+    private final Condition waitForBuffer = lock.newCondition();
     private String buffer = "";
     private int emptySize;
     private int filledSize;
 
-    Buffer(int bufferSize){
-        this.bufferSize = bufferSize;
+    Buffer(int bufferSize) {
         this.emptySize = bufferSize;
         this.filledSize = 0;
     }
@@ -22,31 +19,26 @@ class Buffer {
     void put(String dataToPut) throws InterruptedException {
         int sizeToPut = dataToPut.length();
         lock.lock();
-        System.out.println("chce wsadzic"+sizeToPut);
-        while (sizeToPut > emptySize){
-            waitForEmptyBuffer.await();
+        while (sizeToPut > emptySize) {
+            waitForBuffer.await();
         }
         buffer = buffer + dataToPut;
         emptySize -= dataToPut.length();
         filledSize += dataToPut.length();
-        waitForEmptyBuffer.signalAll();
+        waitForBuffer.signalAll();
         lock.unlock();
     }
 
     String get(int sizeToGet) throws InterruptedException {
-        System.out.println("2chce wziasc"+ sizeToGet);
         lock.lock();
-        System.out.println("3chce: " + sizeToGet + "filled" + filledSize);
-        while (sizeToGet > filledSize){
-            System.out.println("4chce: " + sizeToGet + "filled" + filledSize);
-           // waitForFullBuffer.await();
-            waitForEmptyBuffer.await();
+        while (sizeToGet > filledSize) {
+            waitForBuffer.await();
         }
-        String result = buffer.substring(0, sizeToGet - 1);
+        String result = buffer.substring(0, sizeToGet);
         buffer = buffer.substring(sizeToGet);
         filledSize -= sizeToGet;
         emptySize += sizeToGet;
-        waitForEmptyBuffer.signalAll();
+        waitForBuffer.signalAll();
         lock.unlock();
         return result;
     }

@@ -20,9 +20,4 @@ public class Task1 {
             threads[i].start();
         }
     }
-
-    private static void startThread(BufferOperator threadToStart){
-        Thread t = new Thread(threadToStart);
-        t.run();
-    }
 }
