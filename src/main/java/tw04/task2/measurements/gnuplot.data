@@ -1,0 +1,5 @@
+set term png
+ set xlabel "M [cells]"
+ set ylabel "time [ns]"
+ set output "put1000_100000.png"
+plot "put1000_100000.txt" title "not fair P=K=1000 M=100000", "put1000_fair_100000.txt" title "fair P=K=1000 M=100000"
