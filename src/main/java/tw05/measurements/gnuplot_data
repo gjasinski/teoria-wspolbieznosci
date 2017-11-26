@@ -1,0 +1,11 @@
+set term png
+set xlabel "threads"
+set ylabel "time mean in ns"
+set output "mean.png"
+set logscale xy
+plot "cachedThreadPoolMean" title "cachedThreadPool", "fixedThreadPoolMean" title "fixedThreadPoolMean", "singleThreadExecutorMean" title "singleThreadExecutorMean", "workStealingPoolMean" title "workStealingPoolMean"
+
+set ylabel "std dev"
+set output "stdDev.png"
+set logscale xy
+plot "cachedThreadPoolStdDev" title "cachedThreadPoolStdDev", "fixedThreadPoolStdDev" title "fixedThreadPoolStdDev", "singleThreadExecutorStdDev" title "singleThreadExecutorStdDev", "workStealingPoolStdDev" title "workStealingPoolStdDev"
